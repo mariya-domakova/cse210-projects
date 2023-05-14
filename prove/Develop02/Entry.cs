@@ -12,7 +12,5 @@ public class Entry
         _date = DateTime.Now;
     }
     
-
     public override string ToString() => $"Date: {_date.ToShortDateString()} - Prompt: {_prompt}\nResponse: {_response}";
-    
 }
