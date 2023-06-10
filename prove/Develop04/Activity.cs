@@ -38,15 +38,17 @@ public abstract class Activity
         Console.Write("How long, in seconds, would you like for your session? ");
         SetDuration(int.Parse(Console.ReadLine()));
         Console.Clear();
+
         Console.WriteLine("Get ready...");
         ConsoleAnimationUtility.Spinner(5);
         ActivityContent();
         Console.WriteLine();
+        
         Console.WriteLine(_endingMessage);
         ConsoleAnimationUtility.Spinner(3);
         Console.Clear();
     }
 
-    // This method is defined in child classes.
+    // This method is defined in derived classes.
     protected abstract void ActivityContent();
 }

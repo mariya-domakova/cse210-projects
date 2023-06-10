@@ -20,6 +20,7 @@ public class BreathingActivity : Activity
             Console.Write("\nBreathe in...");
             time += _breathingTimes[i % _breathingTimes.Length];
             ConsoleAnimationUtility.Countdown(_breathingTimes[i++ % _breathingTimes.Length]);
+            
             Console.Write("\nBreathe out...");
             time += _breathingTimes[i % _breathingTimes.Length];
             ConsoleAnimationUtility.Countdown(_breathingTimes[i++ % _breathingTimes.Length]);

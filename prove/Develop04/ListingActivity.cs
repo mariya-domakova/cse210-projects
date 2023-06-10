@@ -26,17 +26,19 @@ public class ListingActivity : Activity
         string[] prompts = _prompts;
         string randomPrompt = GetRandomPrompt(prompts);
         Console.WriteLine($"--- {randomPrompt} ---");
+        
         Console.Write("You may begin in: ");
         ConsoleAnimationUtility.Countdown(5);
         Console.WriteLine();
 
         int time = 0;
+        DateTime startTime = DateTime.Now;
         while (time < GetDuration())
         {
             Console.Write("> ");
             string response = Console.ReadLine();
             _userInputs.Add(response);
-            time++;
+            time = (int)(DateTime.Now - startTime).TotalSeconds;
         }
         Console.WriteLine($"You listed {_userInputs.Count} items!");
         Console.WriteLine();
