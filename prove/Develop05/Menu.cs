@@ -29,7 +29,7 @@ public class Menu
                 break;
             case 2:
                 Console.WriteLine("The goals are:");
-                ListGoals();
+                ListGoals(_goals);
                 DisplayMenu();
                 break;
             case 3:
@@ -70,23 +70,22 @@ public class Menu
 
     private void SetRepeatableGoalProperties(RepeatableGoal repeatable)
     {
-        Console.Write("How many times does this goal need to be accomplished for a bonus? ");
+        Console.Write("How many times does this goal need to be accomplished? ");
         int maxCount = int.Parse(Console.ReadLine());
         repeatable.SetMaxCount(maxCount);
 
-        Console.Write("What is the bonus for accomplishing it that many times? ");
+        Console.Write("What is the amount for accomplishing it each time? ");
         int bonusPoints = int.Parse(Console.ReadLine());
         repeatable.SetBonusPoints(bonusPoints);
     }
 
-
     private void SetChecklistGoals(ChecklistGoal checklist)
-    {
+    { 
         Console.Write("You are going to create multiple subgoals. Press enter to continue");
         while (string.IsNullOrEmpty(Console.ReadLine()))
         {
             checklist.AddGoal(CreateGoal(true));
-            Console.Write("Type done when finished ");
+            Console.Write("Press enter to continue or type 'done' when finished ");
         }
     }
 
@@ -118,10 +117,9 @@ public class Menu
         SetDescription(newGoal);
     }
 
-
     private static void SetPoints(Goal newGoal)
     {
-        Console.Write("What is the amount of points associated with this goal? ");
+        Console.Write("What is the amount of points for accomplishing this goal? ");
         var input = Console.ReadLine();
 
         if (int.TryParse(input, out int points))
@@ -146,6 +144,7 @@ public class Menu
         Console.WriteLine("Invalid input. Try again");
         SetMaxCount(newGoal);
     }
+
     private static Goal SelectGoalType(bool allowChecklist)
     {
         Console.WriteLine("The types of Goals are:");
@@ -170,16 +169,26 @@ public class Menu
         return SelectGoalType(allowChecklist);
     }
 
-    public void ListGoals()
-    {
-        for (int i = 0; i < _goals.Count; i++)
-        {
-            var isComplete = _goals[i].IsComplete() ? 'X' : ' ';
-            Console.WriteLine($"{i + 1} [{isComplete}] {_goals[i]}");
-        }
-    }
+// IList can accept both List and Array and still has indexer
+    public void ListGoals(IList<Goal> goals)
+	{
+	    for (int i = 0; i < goals.Count; i++)
+	    {
+	        var isComplete = goals[i].IsComplete() ? 'X' : ' ';
+	        Console.WriteLine($"{i + 1}. [{isComplete}] {goals[i]}");
 
-    public void SaveGoals()
+			if (goals[i] is ChecklistGoal checklist)
+            {
+                foreach (var subgoal in checklist.GetGoals())
+                {
+					var isCompleteSub = subgoal.IsComplete() ? 'X' : ' ';
+					Console.WriteLine($"\t[{isCompleteSub}] {subgoal}");
+				}
+            }
+		}
+	}
+
+	public void SaveGoals()
     {
         using (StreamWriter outputFile = new StreamWriter(FILENAME))
         {
@@ -197,18 +206,21 @@ public class Menu
         return deserialized;
     }
 
-    public int RecordEvent(Goal[] goals)
+    public int RecordEvent(IList<Goal> goals)
     {
         Console.WriteLine("Which goal did you accomplish? ");
-        ListGoals();
+        ListGoals(goals);
         var input = Console.ReadLine();
-        if (int.TryParse(input, out int selection) && selection > 0 && selection <= _goals.Count)
+        if (int.TryParse(input, out int selection) && selection > 0 && selection <= goals.Count)
         {
             var goal = goals[selection - 1];
-            if (goal is ChecklistGoal checklist)
-                return RecordEvent(checklist.GetGoals());
-            else
-                return goal.RecordEvent();
+            var bonusPoints = 0;
+			if (goal is ChecklistGoal checklist)
+            {
+				bonusPoints = RecordEvent(checklist.GetGoals());
+            }
+            
+            return goal.RecordEvent() + bonusPoints;
         }
         Console.WriteLine("Invalid input. Try again");
         return RecordEvent(goals);

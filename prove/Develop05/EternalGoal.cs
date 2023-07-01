@@ -15,9 +15,13 @@ public class EternalGoal : Goal
 
 	public override int RecordEvent()
 	{
+		if (IsComplete())
+			return 0;
+
 		_lastRecorded = DateTime.Now;
 		return _points;
 	}
+
 
 	public override bool IsComplete()
 	{
